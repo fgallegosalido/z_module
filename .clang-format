@@ -1,0 +1,41 @@
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+Language                                  : Cpp
+Standard                                  : Auto
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+AccessModifierOffset                      : -4
+AlignTrailingComments                     : true
+AllowAllParametersOfDeclarationOnNextLine : false
+AllowShortBlocksOnASingleLine             : true
+AllowShortFunctionsOnASingleLine          : Empty
+AllowShortIfStatementsOnASingleLine       : false
+AllowShortLoopsOnASingleLine              : false
+BreakConstructorInitializersBeforeComma   : true
+ColumnLimit                               : 100
+Cpp11BracedListStyle                      : true
+DerivePointerAlignment                    : true
+DerivePointerBinding                      : false
+IndentWidth                               : 4
+KeepEmptyLinesAtTheStartOfBlocks          : false
+MaxEmptyLinesToKeep                       : 2
+NamespaceIndentation                      : All
+PointerBindsToType                        : true
+SpacesBeforeTrailingComments              : 2
+SpacesInAngles                            : false
+SpacesInSquareBrackets                    : false
+TabWidth                                  : 4
+UseTab                                    : ForIndentation
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+AlwaysBreakTemplateDeclarations           : true #MultiLine
+SpaceBeforeParens                         : ControlStatements
+SpaceBeforeRangeBasedForLoopColon         : true
+SpaceInEmptyParentheses                   : false
+SpaceAfterTemplateKeyword                 : true
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+BreakBeforeBraces                         : Custom
+BraceWrapping                             :
+    AfterClass            : false
+    AfterControlStatement : false
+    AfterFunction         : false
+    AfterNamespace        : false
+    AfterStruct           : false
+    BeforeElse            : true
