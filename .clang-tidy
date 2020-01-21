@@ -1,4 +1,7 @@
 ---
-Checks: '*,-google-*,-llvm-*,-fuchsia-*,-*-braces-around-statements'
+Checks: '
+    *,-google-*,-llvm-*,-fuchsia-*,
+    -*-braces-around-statements
+'
 HeaderFilterRegex: '.*'
 ...

@@ -1,17 +1,15 @@
-#ifndef _Z_MODULE_UNICODE_FORMAT_HPP_
-#define _Z_MODULE_UNICODE_FORMAT_HPP_
+#ifndef Z_MODULE_UNICODE_FORMAT_HPP__
+#define Z_MODULE_UNICODE_FORMAT_HPP__
 
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#include <concepts>
+#include <string>
+
+#if FGS_EXCEPTIONS_SUPPORT
     #include <exception>
     #include <regex>
 #endif
-#include <string>
-
-#include "concepts.hpp"
 
 namespace fgs::detail{
-    using namespace concepts;
-
 #ifdef FGS_UNICODE_SUPPORT
     constexpr const char* integer_set_symbol = "\u2124";
 #else
@@ -21,8 +19,7 @@ namespace fgs::detail{
      *
      * If FGS_UNICODE_SUPPORT is not enabled, it will return the string "_n"
      */
-    template <Integral IntType>
-    std::string subindex_string (IntType n){
+    std::string subindex_string (std::integral auto n){
         std::string subindex;
 
 #ifdef FGS_UNICODE_SUPPORT
@@ -32,7 +29,7 @@ namespace fgs::detail{
             : 0;
 
         while (n > 0){
-            switch (n%10) {
+            switch (n%10) { // This switch keeps clang-tidy happy
                 case 0: subindex.insert(pos, "\u2080"); break;
                 case 1: subindex.insert(pos, "\u2081"); break;
                 case 2: subindex.insert(pos, "\u2082"); break;
@@ -54,13 +51,15 @@ namespace fgs::detail{
     }
 
     // Function to calculate the module of an integer represented as a string
-    template <Integral IntType, typename InputIt>
-    constexpr IntType mod_aux(InputIt first, InputIt last, IntType N)
-        noexcept (!FGS_EXCEPTIONS_ENABLED)
+    template <std::input_iterator InputIt>
+    constexpr auto mod_aux(InputIt first, InputIt last, std::integral auto N)
+        noexcept(!FGS_EXCEPTIONS_SUPPORT)
     {
         // If exceptions are enabled, we parse the string and throw if it
         // cannot be converted to an integer
-#ifdef FGS_EXCEPTIONS_SUPPORT
+        //
+        // Otherwise, undefined behaviour
+#if FGS_EXCEPTIONS_SUPPORT
         if (!std::regex_match(first, last, std::regex{"^[+-]?[0-9]+$"}))
             throw std::invalid_argument("The string cannot be converted to an integer");
 #endif
@@ -70,17 +69,16 @@ namespace fgs::detail{
         if (is_negative || *first == '+')
             ++first;
 
-        IntType res = 0;
+        decltype(N) res = 0;
 
         for (; first != last; ++first)
-            res = (res*10 + static_cast<IntType>(*first - '0')) % N;
+            res = (res*10 + static_cast<decltype(N)>(*first - '0')) % N;
 
-        // Little adjustment in case it was negative
-        if (is_negative)
-            res = N - res;
-
-        return res;
+        // Little adjustment at return point in case it was negative
+        return (is_negative) ? N - res : res;
     }
 }  // namespace fgs::detail
+
+#undef FGS_CHECK_INPUT_STRING__
 
 #endif

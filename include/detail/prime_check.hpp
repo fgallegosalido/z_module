@@ -1,68 +1,91 @@
 #ifndef _Z_MODULE_PRIME_CHECK_HPP_
 #define _Z_MODULE_PRIME_CHECK_HPP_
 
+#include <array>
 #include <limits>
-#include "concepts.hpp"
 
 namespace fgs::detail{
-    using namespace  concepts;
-    /* Primality test for compile-time evaluation
-     *
-     * Source code taken from Casey's answer at Stack Overflow:
-     * https://stackoverflow.com/questions/18303632/compile-time-prime-checking
-     */
-#ifdef FGS_PRIME_CHECK_SUPPORT
-    namespace primes{
-        template<Integral U>
-        constexpr U mid(U low, U high) {
-            return (low + high) / 2;
+
+    // Compile-time primality test "highly optimized" to accept large inputs
+    consteval bool is_prime(std::integral auto N){
+        if (N < 2)
+            return false;
+
+        using value_type = decltype(N);
+
+        // Base cases to create the sieve
+        constexpr std::array base_primes = { // <-- Deduction guides in action
+            value_type(2),
+            value_type(3),
+            value_type(5),
+            value_type(7),
+        };
+        value_type next_prime = 11;
+        value_type increment = 1;
+
+        // We just test against the base primes
+        for (auto const &i : base_primes){
+            if (N == i)   return true;
+            if (N%i == 0) return false;
+
+            // step size for the main loop
+            increment *= i;
         }
 
-        // precondition: low*low <= n, high*high > n.
-        template<Integral U>
-        constexpr U ceilsqrt (U n, U low, U high){
-            return low + 1 >= high
-                ? high
-                : (mid(low, high) * mid(low, high) == n)
-                    ? mid(low, high)
-                    : (mid(low, high) * mid(low, high) <  n)
-                        ? ceilsqrt(n, mid(low, high), high)
-                        : ceilsqrt(n, low, mid(low, high));
+        // Main loop. Since I can't generate the cases, they're handwritten
+        for (value_type i=next_prime; i*i < N; i += increment){
+            if (N%(i+0)  == 0) return false;
+            if (N%(i+2)  == 0) return false;
+            if (N%(i+6)  == 0) return false;
+            if (N%(i+8)  == 0) return false;
+            if (N%(i+12) == 0) return false;
+            if (N%(i+18) == 0) return false;
+            if (N%(i+20) == 0) return false;
+            if (N%(i+26) == 0) return false;
+            if (N%(i+30) == 0) return false;
+            if (N%(i+32) == 0) return false;
+            if (N%(i+36) == 0) return false;
+            if (N%(i+42) == 0) return false;
+            if (N%(i+48) == 0) return false;
+            if (N%(i+50) == 0) return false;
+            if (N%(i+56) == 0) return false;
+            if (N%(i+60) == 0) return false;
+            if (N%(i+62) == 0) return false;
+            if (N%(i+68) == 0) return false;
+            if (N%(i+72) == 0) return false;
+            if (N%(i+78) == 0) return false;
+            if (N%(i+86) == 0) return false;
+            if (N%(i+90) == 0) return false;
+            if (N%(i+92) == 0) return false;
+            if (N%(i+96) == 0) return false;
+            if (N%(i+98) == 0) return false;
+            if (N%(i+102) == 0) return false;
+            if (N%(i+110) == 0) return false;
+            if (N%(i+116) == 0) return false;
+            if (N%(i+120) == 0) return false;
+            if (N%(i+126) == 0) return false;
+            if (N%(i+128) == 0) return false;
+            if (N%(i+132) == 0) return false;
+            if (N%(i+138) == 0) return false;
+            if (N%(i+140) == 0) return false;
+            if (N%(i+146) == 0) return false;
+            if (N%(i+152) == 0) return false;
+            if (N%(i+156) == 0) return false;
+            if (N%(i+158) == 0) return false;
+            if (N%(i+162) == 0) return false;
+            if (N%(i+168) == 0) return false;
+            if (N%(i+170) == 0) return false;
+            if (N%(i+176) == 0) return false;
+            if (N%(i+180) == 0) return false;
+            if (N%(i+182) == 0) return false;
+            if (N%(i+186) == 0) return false;
+            if (N%(i+188) == 0) return false;
+            if (N%(i+198) == 0) return false;
+            if (N%(i+200) == 0) return false;
         }
 
-        // returns ceiling(sqrt(n))
-        template<Integral U>
-        constexpr U ceilsqrt (U n){
-            return n < 3
-                ? n
-                    : ceilsqrt(n, U(1), U(1) << (std::numeric_limits<U>::digits / 2));
-        }
-
-        // returns true if n is divisible by an odd integer in
-        // [2 * low + 1, 2 * high + 1).
-        template<Integral U>
-        constexpr bool find_factor (U n, U low, U high){
-            return low + 1 >= high
-                ? (n % (2 * low + 1)) == 0
-                    : (find_factor(n, low, mid(low, high))
-                        || find_factor(n, mid(low, high), high));
-        }
-    }  // namespace primes
-
-    template<Integral U>
-    constexpr bool is_prime (U n){
-        return n > 1
-            && (n == 2
-                || (n % 2 == 1
-                    && (n == 3
-                        || !primes::find_factor(n, U(1), (primes::ceilsqrt(n) + 1) / 2))));
-    }
-#else
-    template<Integral U>
-    constexpr bool is_prime (U){
         return true;
     }
-#endif
-}  // namespace fgs::aux
+}  // namespace fgs::detail
 
 #endif

@@ -4,68 +4,13 @@ project(Z_MODULE
     LANGUAGES CXX
 )
 
-# Option for static analyzer
-#option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" OFF)
-
-option(BUILD_EXAMPLES   "Builds examples"   OFF)
-option(BUILD_TESTS      "Builds tests"      OFF)
-option(BUILD_BENCHMARKS "Builds benchmarks" OFF)
-
-if(BUILD_EXAMPLES OR BUILD_TESTS OR BUILD_BENCHMARKS)
-   # Link this 'library' to set the c++ standard / compile-time options requested
-   add_library(project_options INTERFACE)
-   # Use C++20 standar
-   target_compile_features(project_options INTERFACE cxx_std_20)
-   # Also use the concepts TS from GCC
-   if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-       target_compile_options(project_options INTERFACE -fconcepts)
-   else()
-       message(SEND_ERROR "Only GCC supports some kind of concepts")
-   endif()
-
-   # Link this 'library' to use the standard warnings
-   add_library(project_warnings INTERFACE)
-   target_compile_options(project_warnings INTERFACE
-       -Wall
-       -Wextra
-       -Wpedantic
-       -Wshadow
-       -Wold-style-cast
-       -Wcast-align
-       -Wnon-virtual-dtor
-       -Woverloaded-virtual
-   )
-
-#   if(ENABLE_CLANG_TIDY)
-#       find_program(CLANGTIDY clang-tidy)
-#       if(CLANGTIDY)
-#           set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY})
-#       else()
-#           message(SEND_ERROR "clang-tidy requested but executable not found")
-#       endif()
-#   endif()
-endif()
-
-
-if(BUILD_EXAMPLES)
-   add_subdirectory(examples)
-endif()
-if(BUILD_TESTS)
-   enable_testing()
-   add_subdirectory(tests)
-endif()
-if(BUILD_BENCHMARKS)
-   add_subdirectory(benchmarks)
-endif()
-
 set(FGS_DETAIL_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/detail/concepts.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/detail/common_type.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/detail/prime_check.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/detail/io_helper.hpp
 )
 set(FGS_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/z_module.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/z_module_algs.hpp
 )
 
 add_library(z_module INTERFACE)
@@ -90,3 +35,51 @@ endif()
 if(${FGS_UNICODE_SUPPORT})
     target_compile_definitions(z_module INTERFACE -DFGS_UNICODE_SUPPORT)
 endif()
+
+# Option for static analyzer (waiting for concepts in clang)
+#option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" OFF)
+
+option(BUILD_EXAMPLES   "Builds examples"   OFF)
+option(BUILD_TESTS      "Builds tests"      OFF)
+#option(BUILD_BENCHMARKS "Builds benchmarks" OFF)
+
+if(BUILD_EXAMPLES OR BUILD_TESTS) #OR BUILD_BENCHMARKS)
+    # Link this 'library' to set the c++ standard / compile-time options requested
+    add_library(project_options INTERFACE)
+    # Use C++20 standar
+    target_compile_features(project_options INTERFACE cxx_std_20)
+
+    # Link this 'library' to use the standard warnings
+    add_library(project_warnings INTERFACE)
+    target_compile_options(project_warnings INTERFACE
+        -Wall
+        -Wextra
+        -Wpedantic
+        -Wshadow
+        -Wold-style-cast
+        -Wcast-align
+        -Wnon-virtual-dtor
+        -Woverloaded-virtual
+    )
+
+    #if(ENABLE_CLANG_TIDY)
+    #    find_program(CLANGTIDY clang-tidy)
+    #    if(CLANGTIDY)
+    #        set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY})
+    #    else()
+    #        message(SEND_ERROR "clang-tidy requested but executable not found")
+    #    endif()
+    #endif()
+endif()
+
+
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+#if(BUILD_BENCHMARKS)
+#    add_subdirectory(benchmarks)
+#endif()
