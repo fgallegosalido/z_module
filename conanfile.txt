@@ -1,0 +1,10 @@
+[requires]
+Catch2/2.11.1@catchorg/stable
+gmp/6.1.2@bincrafters/stable
+
+[generators]
+cmake
+
+[options]
+gmp:enable_cxx=True
+gmp:shared=True

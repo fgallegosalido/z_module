@@ -37,7 +37,8 @@ if(${FGS_UNICODE_SUPPORT})
 endif()
 
 # Option for static analyzer (waiting for concepts in clang)
-#option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" OFF)
+option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" OFF)
+option(ENABLE_CPPCHECK "Enable testing with cppcheck" OFF)
 
 option(BUILD_EXAMPLES   "Builds examples"   OFF)
 option(BUILD_TESTS      "Builds tests"      OFF)
@@ -62,24 +63,55 @@ if(BUILD_EXAMPLES OR BUILD_TESTS) #OR BUILD_BENCHMARKS)
         -Woverloaded-virtual
     )
 
-    #if(ENABLE_CLANG_TIDY)
-    #    find_program(CLANGTIDY clang-tidy)
-    #    if(CLANGTIDY)
-    #        set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY})
-    #    else()
-    #        message(SEND_ERROR "clang-tidy requested but executable not found")
-    #    endif()
+    if(ENABLE_CLANG_TIDY)
+        find_program(CLANGTIDY clang-tidy)
+        if(CLANGTIDY)
+            set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY})
+        else()
+            message(SEND_ERROR "clang-tidy requested but executable not found")
+        endif()
+    endif()
+
+    if(ENABLE_CPPCHECK)
+        find_program(CPPCHECK cppcheck)
+        if(CPPCHECK)
+            set(CMAKE_CXX_CPPCHECK ${CPPCHECK}
+                --enable=warning,performance
+                --inconclusive
+                --force
+                --inline-suppr
+        )
+        else()
+            message(SEND_ERROR "cppcheck requested but executable not found")
+        endif()
+    endif()
+endif()
+
+# Download automatically, you can also just copy the conan.cmake file
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+   message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+   file(DOWNLOAD "https://github.com/conan-io/cmake-conan/raw/v0.15/conan.cmake"
+                 "${CMAKE_BINARY_DIR}/conan.cmake")
+endif()
+
+include(${CMAKE_BINARY_DIR}/conan.cmake)
+conan_check(REQUIRED)
+conan_cmake_run(
+    CONANFILE conanfile.txt
+    BASIC_SETUP
+    CMAKE_TARGETS
+    BUILD missing
+)
+
+if(BUILD_EXAMPLES OR BUILD_TESTS)
+    if(BUILD_EXAMPLES)
+        add_subdirectory(examples)
+    endif()
+    if(BUILD_TESTS)
+        enable_testing()
+        add_subdirectory(tests)
+    endif()
+    #if(BUILD_BENCHMARKS)
+    #    add_subdirectory(benchmarks)
     #endif()
 endif()
-
-
-if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
-if(BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
-#if(BUILD_BENCHMARKS)
-#    add_subdirectory(benchmarks)
-#endif()
