@@ -1,5 +1,5 @@
-#ifndef COMMON_TYPE_HPP__
-#define COMMON_TYPE_HPP__
+#ifndef Z_MODULE_COMMON_TYPE_HPP__
+#define Z_MODULE_COMMON_TYPE_HPP__
 
 #include <concepts>
 #include <type_traits>

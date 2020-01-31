@@ -1,5 +1,5 @@
-#ifndef _Z_MODULE_PRIME_CHECK_HPP_
-#define _Z_MODULE_PRIME_CHECK_HPP_
+#ifndef Z_MODULE_PRIME_CHECK_HPP__
+#define Z_MODULE_PRIME_CHECK_HPP__
 
 #include <array>
 #include <limits>

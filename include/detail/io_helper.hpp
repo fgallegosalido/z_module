@@ -1,10 +1,10 @@
-#ifndef Z_MODULE_UNICODE_FORMAT_HPP__
-#define Z_MODULE_UNICODE_FORMAT_HPP__
+#ifndef Z_MODULE_IO_HELPER_HPP__
+#define Z_MODULE_IO_HELPER_HPP__
 
 #include <concepts>
 #include <string>
 
-#if FGS_EXCEPTIONS_SUPPORT
+#ifdef FGS_EXCEPTIONS_SUPPORT
     #include <exception>
     #include <regex>
 #endif
@@ -53,13 +53,15 @@ namespace fgs::detail{
     // Function to calculate the module of an integer represented as a string
     template <std::input_iterator InputIt>
     constexpr auto mod_aux(InputIt first, InputIt last, std::integral auto N)
-        noexcept(!FGS_EXCEPTIONS_SUPPORT)
+#   ifdef FGS_EXCEPTIONS_SUPPORT
+        noexcept
+#   endif
     {
         // If exceptions are enabled, we parse the string and throw if it
         // cannot be converted to an integer
         //
         // Otherwise, undefined behaviour
-#if FGS_EXCEPTIONS_SUPPORT
+#ifdef FGS_EXCEPTIONS_SUPPORT
         if (!std::regex_match(first, last, std::regex{"^[+-]?[0-9]+$"}))
             throw std::invalid_argument("The string cannot be converted to an integer");
 #endif
@@ -78,7 +80,5 @@ namespace fgs::detail{
         return (is_negative) ? N - res : res;
     }
 }  // namespace fgs::detail
-
-#undef FGS_CHECK_INPUT_STRING__
 
 #endif
