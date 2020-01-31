@@ -2,6 +2,7 @@
 #include "z_module_algs.hpp"
 
 #include <iostream>
+#include <sstream>
 #include <utility>
 
 // Function to check correctness of ZModule class
@@ -10,8 +11,6 @@ void test_z_module(){
     using namespace fgs;
     // Name of the class
     std::clog << "The set of integers module " << UInt1 << " is called " << Z<UInt1>::NAME << "\n";
-    // The euler value of the Z-module
-    std::clog << "The Euler function for " << UInt1 << " evaluates to " << Z<UInt1>::E << "\n";
 
     // Check all constructors and assingments
     Z<UInt1> cd, cn(10), cc(cn), cm(std::move(cc));
@@ -53,6 +52,10 @@ void test_z_module(){
     a = b * 2;  a = 2 * b;
     a = b / 20;  a = 20 / b;
 
+    // Operator ^ for pow
+    a^10;
+    a^-10;
+
     // Comparison for same types ==, !=, <, <=, > and >=
     a == b;
     a != b;
@@ -64,9 +67,9 @@ void test_z_module(){
     // Comparison for different types ==, !=, <, <=, > and >=
     a == 10; 10 == a;
     a != 10; 10 != a;
-    a < 10;  10 < a;
+    a  < 10; 10  < a;
     a <= 10; 10 <= a;
-    a > 10;  10 > a;
+    a  > 10; 10  > a;
     a >= 10; 10 >= a;
 
     // Constructor with the value of other ring
@@ -74,32 +77,18 @@ void test_z_module(){
     // Casting
     static_cast<Z<UInt2>>(a);
 
-    // Testing the address of operator
-    Z<UInt1> *p = &a;
-    *p = b;
-
     // I/O
     Z<UInt2> e;
+
     std::clog << "Testing input....\n";
-    std::cin >> e;
+    std::stringstream{"628920810681886168186108890"} >> e;
     std::clog << "The typed number is " << e << " in " << Z<UInt2>::NAME << "\n";
-}
-
-template<auto UInt>
-void test_z_module_algs(){
-    using namespace fgs;
-    Z<UInt> a(10), b(20);
-
-    // pow function for Z-module
-    a = pow(b, 10);
-    a = pow(b, -10);
 
     // Testing the traits
-    if constexpr (is_z_module<Z<UInt>>::value)
-        std::clog << Z<UInt>::NAME << " is a Z-module\n";
+    if constexpr (is_z_module_v<Z<UInt1>>)
+        std::clog << Z<UInt1>::NAME << " is a Z-module\n";
 }
 
 int main(){
     test_z_module<1237, 9769>();
-    test_z_module_algs<10007>();
 }
