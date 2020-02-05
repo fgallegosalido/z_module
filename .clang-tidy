@@ -1,7 +1,8 @@
 ---
 Checks: '
     *,-google-*,-llvm-*,-fuchsia-*,
-    -*-braces-around-statements
+    -*-braces-around-statements,
+    -*-magic-numbers
 '
-HeaderFilterRegex: '.*'
+HeaderFilterRegex: '.*;-catch.hpp;-cpp_int.hpp'
 ...

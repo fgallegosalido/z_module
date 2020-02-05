@@ -1,7 +1,8 @@
 #ifndef Z_MODULE_COMMON_TYPE_HPP__
 #define Z_MODULE_COMMON_TYPE_HPP__
 
-#include <concepts>
+#include "concepts.hpp"
+
 #include <type_traits>
 
 namespace fgs{

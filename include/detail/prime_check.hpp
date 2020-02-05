@@ -1,13 +1,20 @@
 #ifndef Z_MODULE_PRIME_CHECK_HPP__
 #define Z_MODULE_PRIME_CHECK_HPP__
 
+#include "concepts.hpp"
+
 #include <array>
 #include <limits>
 
 namespace fgs::detail{
 
     // Compile-time primality test "highly optimized" to accept large inputs
-    consteval bool is_prime(std::integral auto N){
+#ifdef __cpp_consteval
+    consteval
+#else
+    constexpr
+#endif
+    bool is_prime(std::integral auto N){
         if (N < 2)
             return false;
 

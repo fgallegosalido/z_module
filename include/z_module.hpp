@@ -1,11 +1,11 @@
 #ifndef Z_MODULE_HPP__
 #define Z_MODULE_HPP__
 
+#include "detail/concepts.hpp"
 #include "detail/common_type.hpp"
 #include "detail/io_helper.hpp"
 #include "detail/prime_check.hpp"
 
-#include <concepts>
 #include <iostream>     // std::basic_istream, std::basic_ostream
 #include <numeric>      // std::gcd
 #include <string>       // std::basic_string
@@ -15,7 +15,7 @@
 // The thing is to mark some specific functions as noexcept
 // depending on this macro, so we are going to define a new one
 // with boolean values for that purpose.
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#ifndef FGS_EXCEPTIONS_SUPPORT
     #include <exception>    // std::domain_error
 #endif
 
@@ -76,29 +76,29 @@ public:
     explicit constexpr ZModule (const U &other) noexcept
         : n{    // This weird initilization is needed to allow constexpr
             (other < 0)
-                ? N - static_cast<value_type>((other*(-1))%N)
+                ? N - static_cast<value_type>(-other%N)
                 : static_cast<value_type>(other%N)
            }
     {}
 
     // Set of constructors specialized for arbitrary long numbers
-    template <typename CharT, typename Traits, typename Allocator>
-    explicit constexpr ZModule (const std::basic_string<CharT, Traits, Allocator> &s)
-    #ifdef FGS_EXCEPTIONS_SUPPORT
-        noexcept
-    #endif
-        : n{detail::mod_aux(s.begin(), s.end(), N)}{}
-
     template <typename CharT, typename Traits>
     explicit constexpr ZModule (const std::basic_string_view<CharT, Traits> &s)
-    #ifdef FGS_EXCEPTIONS_SUPPORT
+    #ifndef FGS_EXCEPTIONS_SUPPORT
         noexcept
     #endif
-        : n{detail::mod_aux(s.begin(), s.end(), N)}{}
+        : n{detail::mod_aux(s, N)}{}
+
+    template <typename CharT, typename Traits, typename Allocator>
+    explicit constexpr ZModule (const std::basic_string<CharT, Traits, Allocator> &s)
+    #ifndef FGS_EXCEPTIONS_SUPPORT
+        noexcept
+    #endif
+        : ZModule{std::basic_string_view<CharT>{s}}{}
 
     template <typename CharT>
     explicit constexpr ZModule (const CharT *s)
-    #ifdef FGS_EXCEPTIONS_SUPPORT
+    #ifndef FGS_EXCEPTIONS_SUPPORT
         noexcept
     #endif
         : ZModule{std::basic_string_view<CharT>{s}}{}
@@ -141,7 +141,7 @@ public:
         return *this;
     }
     constexpr ZModule& operator/= (const ZModule &zm)
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#ifndef FGS_EXCEPTIONS_SUPPORT
     noexcept
 #endif
     {
@@ -169,7 +169,7 @@ public:
     template<typename U>
     requires std::constructible_from<ZModule<Integer>, U>
     constexpr ZModule& operator/= (const U &other)
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#ifndef FGS_EXCEPTIONS_SUPPORT
     noexcept
 #endif
     {
@@ -216,13 +216,13 @@ private:
 
     // Calculate the inverse of the number in the ring
     constexpr auto inverse() const
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#ifndef FGS_EXCEPTIONS_SUPPORT
     noexcept
 #endif
     {
         // If this macro is not defined, impossible operations
         // will be left as undefined behaviour instead of throwing
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#ifndef FGS_EXCEPTIONS_SUPPORT
         if (n == 0)
             throw std::domain_error("Divide by zero exception");
 
@@ -279,7 +279,7 @@ template<auto Integer1, auto Integer2>
 requires (Integer1 == Integer2)
 constexpr auto operator/ (const ZModule<Integer1> &lhs,
                           const ZModule<Integer2> &rhs)
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#ifndef FGS_EXCEPTIONS_SUPPORT
     noexcept
 #endif
 {
@@ -304,7 +304,7 @@ constexpr ZModule<Integer> operator* (const ZModule<Integer> &lhs, const U &rhs)
 }
 template<auto Integer, typename U>
 constexpr ZModule<Integer> operator/ (const ZModule<Integer> &lhs, const U &rhs)
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#ifndef FGS_EXCEPTIONS_SUPPORT
     noexcept
 #endif
 {
@@ -325,7 +325,7 @@ constexpr ZModule<Integer> operator* (const U &lhs, const ZModule<Integer> &rhs)
 }
 template<auto Integer, typename U>
 constexpr ZModule<Integer> operator/ (const U &lhs, const ZModule<Integer> &rhs)
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#ifndef FGS_EXCEPTIONS_SUPPORT
     noexcept
 #endif
 {
@@ -336,7 +336,7 @@ constexpr ZModule<Integer> operator/ (const U &lhs, const ZModule<Integer> &rhs)
 // give the ^ operator a new meaning (pow basically)
 template<auto Integer>
 constexpr ZModule<Integer> operator^ (const ZModule<Integer> &base, const std::integral auto &exponent)
-#ifdef FGS_EXCEPTIONS_SUPPORT
+#ifndef FGS_EXCEPTIONS_SUPPORT
     noexcept
 #endif
 {

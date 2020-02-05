@@ -5,7 +5,7 @@
 #include <string_view>
 
 TEST_CASE("Integral constructors"){
-    fgs::Z<1237> a1{9769u};
+    fgs::Z<1237> a1{9769U};
     fgs::Z<1237> a2{-9769};
     fgs::Z<9769> a3{fgs::Z<1237>{5000}};
     fgs::Z<1237> a4{fgs::Z<9769>{3000}};

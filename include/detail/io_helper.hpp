@@ -1,7 +1,8 @@
 #ifndef Z_MODULE_IO_HELPER_HPP__
 #define Z_MODULE_IO_HELPER_HPP__
 
-#include <concepts>
+#include "concepts.hpp"
+
 #include <string>
 
 #ifdef FGS_EXCEPTIONS_SUPPORT
@@ -51,9 +52,9 @@ namespace fgs::detail{
     }
 
     // Function to calculate the module of an integer represented as a string
-    template <std::input_iterator InputIt>
-    constexpr auto mod_aux(InputIt first, InputIt last, std::integral auto N)
-#   ifdef FGS_EXCEPTIONS_SUPPORT
+    template <typename CharT, typename Traits>
+    constexpr auto mod_aux(const std::basic_string_view<CharT, Traits> &s, std::integral auto N)
+#   ifndef FGS_EXCEPTIONS_SUPPORT
         noexcept
 #   endif
     {
@@ -62,22 +63,16 @@ namespace fgs::detail{
         //
         // Otherwise, undefined behaviour
 #ifdef FGS_EXCEPTIONS_SUPPORT
-        if (!std::regex_match(first, last, std::regex{"^[+-]?[0-9]+$"}))
+        if (!std::regex_match(begin(s), end(s), std::regex{"^[+-]?[0-9]+$"}))
             throw std::invalid_argument("The string cannot be converted to an integer");
 #endif
-        // We need to check if the string represents a negative number
-        bool is_negative = *first == '-';
-        // If the first char is one of '+' or '-', we advance the first iterator
-        if (is_negative || *first == '+')
-            ++first;
-
         decltype(N) res = 0;
 
-        for (; first != last; ++first)
-            res = (res*10 + static_cast<decltype(N)>(*first - '0')) % N;
+        for (std::size_t i=(s[0]=='+' || s[0]=='-')?1:0; i<s.size(); ++i)
+            res = (res*10 + static_cast<decltype(N)>(s[i] - '0')) % N;
 
         // Little adjustment at return point in case it was negative
-        return (is_negative) ? N - res : res;
+        return (s[0] == '-') ? N - res : res;
     }
 }  // namespace fgs::detail
 

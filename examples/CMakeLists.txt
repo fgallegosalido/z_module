@@ -9,9 +9,9 @@ endif()
 add_executable(example src/example.cpp)
 
 target_link_libraries(example
-    fgs::z_module
     project_options
     project_warnings
+    z_module::z_module
     ${CONAN_LIBS_GMP}
 )
 

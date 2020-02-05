@@ -7,7 +7,7 @@ add_executable(z_module_test
 target_link_libraries(z_module_test
     project_options
     project_warnings
-    fgs::z_module
+    z_module::z_module
     ${CONAN_LIBS_CATCH2}
 )
 

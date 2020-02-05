@@ -4,18 +4,18 @@ project(Z_MODULE
     LANGUAGES CXX
 )
 
-set(FGS_DETAIL_HEADERS
+set(Z_MODULE_DETAIL_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/detail/common_type.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/detail/prime_check.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/detail/io_helper.hpp
 )
-set(FGS_HEADERS
+set(Z_MODULE_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/include/z_module.hpp
 )
 
 add_library(z_module INTERFACE)
-add_library(fgs::z_module ALIAS z_module)
-target_sources(z_module INTERFACE "$<BUILD_INTERFACE:${FGS_DETAIL_HEADERS};${FGS_HEADERS}>")
+add_library(z_module::z_module ALIAS z_module)
+target_sources(z_module INTERFACE "$<BUILD_INTERFACE:${Z_MODULE_DETAIL_HEADERS};${Z_MODULE_HEADERS}>")
 target_include_directories(z_module INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>)
 target_include_directories(z_module SYSTEM INTERFACE $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 
@@ -45,6 +45,26 @@ option(BUILD_TESTS      "Builds tests"      OFF)
 #option(BUILD_BENCHMARKS "Builds benchmarks" OFF)
 
 if(BUILD_EXAMPLES OR BUILD_TESTS) #OR BUILD_BENCHMARKS)
+    # Use ccache to speed up compilation if possible
+    find_program(CCACHE ccache)
+    if(CCACHE)
+        set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
+    endif()
+
+    # Set a default build type if none was specified
+    if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+        message(STATUS "Setting build type to 'Debug' as none was specified.")
+        set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
+
+        # Set the possible values of build type for cmake-gui
+        set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+            "Debug"
+            "Release"
+            "MinSizeRel"
+            "RelWithDebInfo"
+        )
+    endif()
+
     # Link this 'library' to set the c++ standard / compile-time options requested
     add_library(project_options INTERFACE)
     # Use C++20 standar
@@ -64,9 +84,9 @@ if(BUILD_EXAMPLES OR BUILD_TESTS) #OR BUILD_BENCHMARKS)
     )
 
     if(ENABLE_CLANG_TIDY)
-        find_program(CLANGTIDY clang-tidy)
-        if(CLANGTIDY)
-            set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY})
+        find_program(CLANG_TIDY clang-tidy)
+        if(CLANG_TIDY)
+            set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY})
         else()
             message(SEND_ERROR "clang-tidy requested but executable not found")
         endif()
@@ -85,25 +105,23 @@ if(BUILD_EXAMPLES OR BUILD_TESTS) #OR BUILD_BENCHMARKS)
             message(SEND_ERROR "cppcheck requested but executable not found")
         endif()
     endif()
-endif()
 
-# Download automatically, you can also just copy the conan.cmake file
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-   message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-   file(DOWNLOAD "https://github.com/conan-io/cmake-conan/raw/v0.15/conan.cmake"
-                 "${CMAKE_BINARY_DIR}/conan.cmake")
-endif()
+    # Download automatically, you can also just copy the conan.cmake file
+    if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+       message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+       file(DOWNLOAD "https://github.com/conan-io/cmake-conan/raw/v0.15/conan.cmake"
+                     "${CMAKE_BINARY_DIR}/conan.cmake")
+    endif()
 
-include(${CMAKE_BINARY_DIR}/conan.cmake)
-conan_check(REQUIRED)
-conan_cmake_run(
-    CONANFILE conanfile.txt
-    BASIC_SETUP
-    CMAKE_TARGETS
-    BUILD missing
-)
+    include(${CMAKE_BINARY_DIR}/conan.cmake)
+    conan_check(REQUIRED)
+    conan_cmake_run(
+        CONANFILE conanfile.txt
+        BASIC_SETUP
+        CMAKE_TARGETS
+        BUILD missing
+    )
 
-if(BUILD_EXAMPLES OR BUILD_TESTS)
     if(BUILD_EXAMPLES)
         add_subdirectory(examples)
     endif()
